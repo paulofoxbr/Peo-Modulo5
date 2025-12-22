@@ -1,0 +1,238 @@
+﻿@page "/cursos/{CursoId:guid}/aulas"
+@using MudBlazor
+@using Peo.Web.Spa.Models
+@using Peo.Web.Spa.Services
+@using System.Globalization;
+@using System.Text;
+@inject AulasService Service
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
+@inject ILogger<Aulas> Logger
+@inject WebApiClient Api
+
+
+<PageTitle>Aulas</PageTitle>
+
+<MudPaper Class="pa-2">
+    <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+        <MudText Typo="Typo.h5">Aulas</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="Busca"
+                      Placeholder="Buscar por título ou descrição..."
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      Immediate="true"
+                      DebounceInterval="250" />
+
+
+        <MudSpacer />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="AbrirCriar">
+            Nova Aula
+        </MudButton>
+    </MudStack>
+
+    <MudTable Items="_aulas" Dense="true" Hover="true" Bordered="true" Class="mt-4"
+              RowsPerPage="10" Breakpoint="Breakpoint.Sm">
+        <HeaderContent>
+            <MudTh>Curso</MudTh>
+            <MudTh style="width:90px">Duração</MudTh>
+            <MudTh>Título</MudTh>
+            <MudTh>Vídeo</MudTh>
+            <MudTh>Arquivos</MudTh>
+            <MudTh Class="text-right"> Ações </MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Curso">
+                @(_cursoNome)
+            </MudTd>
+            <MudTd>@context.Duracao.ToString(@"hh\:mm")</MudTd>
+            <MudTd>@context.Titulo<br /><MudText Typo="Typo.caption" Class="text-secondary">@context.Descricao</MudText></MudTd>
+            <MudTd><MudLink Href="@context.UrlVideo" Target="_blank">@context.UrlVideo</MudLink></MudTd>
+            <MudTd>
+                @if (context.Arquivos?.Any() == true)
+                {
+                    @foreach (var arq in context.Arquivos)
+                    {
+                        <MudChip T="string" Class="me-1 mb-1" Variant="Variant.Outlined" Size="Size.Small">
+                            <MudLink Href="@arq.Url" Target="_blank">@arq.Titulo</MudLink>
+                        </MudChip>
+
+                    }
+                }
+                else
+                {
+                    <MudText Typo="Typo.caption" Class="text-secondary">—</MudText>
+                }
+            </MudTd>
+            <MudTd DataLabel="Ações" Class="text-right">
+                <MudTooltip Text="Visualizar">
+                    <MudIconButton Icon="@Icons.Material.Filled.Visibility"
+                                   Size="Size.Small"
+                                   OnClick="@(() => VisualizarAula(context))" />
+                </MudTooltip>                
+            </MudTd>
+        </RowTemplate>
+        <PagerContent><MudTablePager /></PagerContent>
+    </MudTable>
+</MudPaper>
+
+@code {
+    [Parameter] public Guid CursoId { get; set; }
+
+    public enum AulaDialogMode { Create, Edit, View }
+    [Parameter] public AulaDialogMode Mode { get; set; } = AulaDialogMode.Create;
+
+    [SupplyParameterFromQuery(Name = "courseId")]
+        
+    public Guid? CourseIdQuery { get; set; }
+    private List<AulaVm> _todas = new();
+    private List<AulaVm> _aulas = new();
+    private List<AulaVm> _todasAulas = new();
+    private string _cursoNome = string.Empty;
+    private CancellationTokenSource? _cts;
+
+    // === BUSCA ===
+    private string _busca = string.Empty;
+    private string Busca
+    {
+        get => _busca;
+        set
+        {
+            var novo = value ?? string.Empty;
+            if (novo == _busca) return;
+            _busca = novo;
+            AplicarFiltro();
+        }
+    }
+
+    public void Dispose()
+    {
+        _cts?.Cancel();
+        _cts?.Dispose();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+            var curso = await Api.GetV1ConteudoCurso2Async(CursoId, _cts!.Token);
+            _cursoNome = curso.Titulo;
+
+            await Carregar(CursoId);
+
+
+
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Erro ao carregar cursos: {ex.Message}", Severity.Error);
+        }
+    }
+
+
+    private void AplicarFiltro()
+    {
+        if (_todasAulas is null) { _aulas = new(); StateHasChanged(); return; }
+
+        var termo = (Busca ?? string.Empty).Trim();
+        if (string.IsNullOrWhiteSpace(termo))
+        {
+            _aulas = _todasAulas;
+            StateHasChanged();
+            return;
+        }
+
+        // busca case-insensitive, tolerante a null em Titulo/Descricao
+        _aulas = _todasAulas.Where(a =>
+            (a.Titulo?.Contains(termo, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (a.Descricao?.Contains(termo, StringComparison.OrdinalIgnoreCase) ?? false)
+        ).ToList();
+
+        StateHasChanged();
+    }
+
+    static string Normaliza(string? s)
+    {
+        if (string.IsNullOrEmpty(s)) return string.Empty;
+        var norm = s.Normalize(System.Text.NormalizationForm.FormD);
+        var sb = new System.Text.StringBuilder(norm.Length);
+        foreach (var ch in norm)
+        {
+            var uc = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(ch);
+            if (uc != System.Globalization.UnicodeCategory.NonSpacingMark)
+                sb.Append(char.ToLowerInvariant(ch));
+        }
+        return sb.ToString().Normalize(System.Text.NormalizationForm.FormC);
+    }
+
+
+
+ 
+
+    private async Task Carregar(Guid cursoId)
+    {
+        Logger.LogWarning("Carregar");
+        var aulas = await Service.ObterAulasDoCurso(cursoId);
+        foreach (var a in aulas) a.CursoId = cursoId;
+
+        _todasAulas = aulas;
+        AplicarFiltro();
+    }
+
+    private async Task AbrirCriar()
+    {
+        var vm = new AulaVm
+        {
+            Duracao = TimeSpan.FromMinutes(30),
+            CursoId = CursoId,
+        };
+
+        var dlg = await DialogService.ShowAsync<AulaDialog>(" ",
+            new DialogParameters { ["Model"] = vm },
+            new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseOnEscapeKey = true });
+
+        var result = await dlg.Result;
+
+        if (result is { Canceled: false })
+            await Carregar(CursoId);
+    }
+
+    private async Task VisualizarAula(AulaVm aula)
+    {
+        var vm = new AulaVm
+        {
+            Id = aula.Id,
+            CursoId = aula.CursoId,
+            Titulo = aula.Titulo,
+            Descricao = aula.Descricao,
+            UrlVideo = aula.UrlVideo,
+            Duracao = aula.Duracao,
+            Arquivos = aula.Arquivos?.Select(x => new ArquivoAulaVm { Id = x.Id, Titulo = x.Titulo, Url = x.Url }).ToList() ?? new()
+        };
+
+        var dlg = await DialogService.ShowAsync<AulaDialog>("Detalhes da Aula",
+            new DialogParameters { ["Model"] = vm, ["Mode"] = AulaDialogMode.View },
+            new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true, CloseOnEscapeKey = true });
+
+        await dlg.Result;
+    }
+
+    private async Task RemoverAula(AulaVm aula)
+    {
+        var confirmou = await DialogService.ShowMessageBox(
+            "Remover aula?", (MarkupString)$"Tem certeza que deseja remover <b>{aula.Titulo}</b>?",
+            yesText: "Remover", cancelText: "Cancelar",
+            options: new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall });
+
+        if (confirmou != true) return;
+
+        var (ok, msg) = await Service.ExcluirAula(aula.CursoId, aula.Id);
+        if (ok) { Snackbar.Add("Aula removida.", Severity.Success); await Carregar(CursoId); }
+        else { Snackbar.Add(msg ?? "Falha ao remover aula.", Severity.Error); }
+    }
+}

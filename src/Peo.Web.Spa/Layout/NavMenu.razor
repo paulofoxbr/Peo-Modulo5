@@ -1,0 +1,37 @@
+﻿@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<MudPaper Width="250px" Class="d-inline-flex py-3" Elevation="0">
+
+    <MudNavMenu Dense="true">
+        <MudText Typo="Typo.h1" Class="pa-4">PEO</MudText>
+        <MudText Typo="Typo.body2" Class="px-4 pb-4">Plataforma de Educação Online</MudText>
+        <MudDivider Class="my-2" />
+        <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
+
+        @if (_isAdmin)
+        {
+            <MudNavLink Href="/cursos" 
+                        Icon="@Icons.Material.Filled.Book">
+                Gestão de Conteúdo
+            </MudNavLink>
+        }
+
+        <MudNavLink Href="/matricula" Icon="@Icons.Material.Filled.Class">
+            Matricula
+        </MudNavLink>
+
+        <MudNavLink Href="/alunosaulas" Icon="@Icons.Material.Filled.Newspaper">
+            Minhas aulas
+        </MudNavLink>
+
+        <MudNavLink Href="/historico" Icon="@Icons.Material.Filled.History">
+            Histórico
+        </MudNavLink>
+
+        <MudNavLink Href="/certificados" Icon="@Icons.Material.Filled.School">
+            Certificados
+        </MudNavLink>
+
+    </MudNavMenu>
+
+</MudPaper>
