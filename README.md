@@ -4,12 +4,13 @@
 
 ## **Apresentação**
 
-Bem-vindo ao repositório do projeto **Peo**. Este projeto é uma entrega do MBA DevXpert Full Stack .NET e é referente ao terceiro módulo do MBA Desenvolvedor.IO.
+Bem-vindo ao repositório do projeto **Peo Modulo 5**. Este projeto é uma entrega do MBA DevXpert Full Stack .NET e é referente ao terceiro módulo do MBA Desenvolvedor.IO.
 
 O objetivo principal é desenvolver uma plataforma educacional online com múltiplos bounded contexts (BC), aplicando DDD, TDD, CQRS e padrões arquiteturais para gestão eficiente de conteúdos educacionais, alunos e processos financeiros. 
 
+Adpatação do projeto original do módulo 4 para o módulo 5, focando na implementação de microserviços e comunicação assíncrona incluindo dockers e kubernetes.
 
-### **Autores**
+### **Autores no módulo 4**
 - **Eduardo Gimenes**
 - **Filipe Alan Elias**
 - **Jonatas Cruz**
@@ -17,6 +18,9 @@ O objetivo principal é desenvolver uma plataforma educacional online com múlti
 - **Leandro Andreotti** 
 - **Paulo Cesar Carneiro**
 - **Marcelo Menezes**
+
+### **Modulo 5 **
+- **Paulo Cesar Carneiro**
 
 ## **Proposta do Projeto**
 
@@ -120,8 +124,6 @@ No repositório GitHub a action de compilação executa a compilação e os test
 - Escolha o último workflow executado.
 - Na seção Artifacts, baixar o arquivo ZIP, contendo o relatório em HTML.
  
-
-
 
 
 ## **Avaliação**
