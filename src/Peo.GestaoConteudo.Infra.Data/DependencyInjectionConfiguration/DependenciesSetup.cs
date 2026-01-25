@@ -13,28 +13,13 @@ namespace Peo.GestaoConteudo.Infra.Data.DependencyInjectionConfiguration
     {
         public static IServiceCollection AddDataDependenciesForGestaoConteudo(this IServiceCollection services, IConfiguration configuration, IHostEnvironment hostEnvironment)
         {
-            string connectionString;
-
-            if (hostEnvironment.IsDevelopment())
-            {
-                connectionString = configuration.GetConnectionString("SQLiteConnection") ?? throw new InvalidOperationException("Não localizada connection string para ambiente de desenvolvimento (SQLite)");
-            }
-            else
-            {
-                connectionString = configuration.GetConnectionString("SqlServerConnection") ?? throw new InvalidOperationException("Não localizada connection string para ambiente de produção (SQL Server)");
-            }
+            string connectionString = configuration.GetConnectionString("SqlServerConnection")
+                ?? throw new InvalidOperationException("Nao localizada connection string para SQL Server");
 
             // GestaoConteudo
             services.AddDbContext<GestaoConteudoContext>(options =>
             {
-                if (hostEnvironment.IsDevelopment())
-                {
-                    options.UseSqlite(connectionString);
-                }
-                else
-                {
-                    options.UseSqlServer(connectionString);
-                }
+                options.UseSqlServer(connectionString);
 
                 options.UseLazyLoadingProxies();
 

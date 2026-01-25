@@ -16,4 +16,8 @@
 	<ProjectReference Include="..\Peo.Identity.Domain\Peo.Identity.Domain.csproj" />	
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>
