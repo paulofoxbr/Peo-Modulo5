@@ -6,7 +6,7 @@
       "project": "Peo.Web.Bff.csproj",
       "documentName": "v1",
       "msBuildProjectExtensionsPath": null,
-      "configuration": "Debug",
+      "configuration": "Release",
       "runtime": null,
       "targetFramework": "net9.0",
       "noBuild": true,
@@ -20,3 +20,4 @@
   },
   "codeGenerators": {}
 }
+
