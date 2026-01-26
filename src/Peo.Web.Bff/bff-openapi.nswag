@@ -9,7 +9,7 @@
       "configuration": "Release",
       "runtime": null,
       "targetFramework": "net9.0",
-      "noBuild": true,
+      "noBuild": false,
       "msBuildOutputPath": null,
       "verbose": true,
       "workingDirectory": null,
