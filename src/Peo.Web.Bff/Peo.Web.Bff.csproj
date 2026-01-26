@@ -30,7 +30,11 @@
 	</ItemGroup>
 
 	<!-- 1) Gera openapi.json (BFF) -->
-	<Target Name="GenerateOpenApiDoc" AfterTargets="Build" Condition="'$(DesignTimeBuild)' != 'true' AND Exists('$(BffNswagConfig)')">
+    <Target Name="GenerateOpenApiDoc" AfterTargets="Build"
+            Condition="'$(DesignTimeBuild)' != 'true' 
+                   AND Exists('$(BffNswagConfig)') 
+                   AND '$(Configuration)' == 'Debug'">
+
 		<PropertyGroup>
 			<_NSwagExe Condition="'$(NSwagExe_Net90)' != ''">$(NSwagExe_Net90)</_NSwagExe>
 			<_NSwagExe Condition="'$(_NSwagExe)' == '' AND '$(NSwagExe_Net80)' != ''">$(NSwagExe_Net80)</_NSwagExe>
