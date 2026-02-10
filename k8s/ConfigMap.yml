@@ -1,0 +1,12 @@
+﻿apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: peo-config
+data:
+  ASPNETCORE_ENVIRONMENT: "Development"
+  ASPNETCORE_URLS: "http://+:8080"
+
+  Endpoints__Identity: "http://peo-identity-webapi:8080/"
+  Endpoints__GestaoConteudo: "http://peo-gestao-conteudo-webapi:8080/"
+  Endpoints__GestaoAlunos: "http://peo-gestao-alunos-webapi:8080/"
+  Endpoints__Faturamento: "http://peo-faturamento-webapi:8080/"

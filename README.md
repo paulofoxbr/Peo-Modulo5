@@ -10,14 +10,6 @@ O objetivo principal é desenvolver uma plataforma educacional online com múlti
 
 Adpatação do projeto original do módulo 4 para o módulo 5, focando na implementação de microserviços e comunicação assíncrona incluindo dockers e kubernetes.
 
-### **Autores no módulo 4**
-- **Eduardo Gimenes**
-- **Filipe Alan Elias**
-- **Jonatas Cruz**
-- **Joseleno Santos** 
-- **Leandro Andreotti** 
-- **Paulo Cesar Carneiro**
-- **Marcelo Menezes**
 
 ### **Modulo 5 **
 - **Paulo Cesar Carneiro**
@@ -60,7 +52,8 @@ A estrutura do projeto é organizada da seguinte forma:
 - src: códigos-fonte da solução  
 - tests: testes de integração e de unidade.
 - docs: [documentação do projeto](./docs/README.md) e requisitos
-	
+- k8s: manifestos Kubernetes (Deployment/Service/ConfigMap/Secret)
+
 - README.md: Arquivo de Documentação do Projeto
 - FEEDBACK.md: Arquivo para Consolidação dos Feedbacks
 - DEVELOPMENT.md: Notas de apoio para o desenvolvimento
@@ -74,9 +67,10 @@ A estrutura do projeto é organizada da seguinte forma:
 
 - .NET SDK 9.0 ou superior
 - SQL Server ou SQLite
-- Docker (ou outra solução de container)
+- Docker Desktop (recomendado) com Kubernetes habilitado
 - Visual Studio 2022 ou superior (ou qualquer IDE de sua preferência)
 - Git
+- kubectl (normalmente já vem com o Docker Desktop)
 
 ### **Passos para Execução**
 
@@ -103,6 +97,19 @@ Usuário: admin@admin.com
  
 Senha: @dmin!
 
+Esse comando gera as imagens locais com tags como `peo/web-bff:1.0`, `peo/web-spa:1.0`, etc.  
+Como o Kubernetes está rodando no Docker Desktop, ele consegue utilizar essas imagens locais.
+
+### **4) Acessos (NodePort)**
+Os serviços externos são expostos via **NodePort**:
+
+- **SPA (frontend)**: `http://localhost:31031`
+- **BFF (Swagger/API)**: `http://localhost:31276`
+
+> Caso `localhost` não funcione no seu ambiente, obtenha o IP do node com `kubectl get nodes -o wide` e acesse `http://<IP_DO_NODE>:31031` e `http://<IP_DO_NODE>:31276`.
+
+### **Para remover tudo do cluster**
+
 ## **Instruções de Configuração**
 
 - **JWT para API:** As chaves de configuração do JWT estão nos arquivos `\src\Peo.XXX.Api\appsettings.json`.
@@ -114,7 +121,6 @@ A documentação da API BFF está disponível através do Swagger. Após iniciar
 
 ## **Documentação do projeto**
 Uma documentação extensiva pode ser obtida [aqui](./docs/README.md).
-
 
 ## **Code coverage e CI**
 A cobertura de código pode ser gerada manualmente/localmente através do script `\scripts\run-tests-with-coverage.ps1` (que utiliza dotCover) e pode ser visualizada no caminho `\scripts\report.html`. 

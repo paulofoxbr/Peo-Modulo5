@@ -1,0 +1,287 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peo-sqlserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: peo-sqlserver
+  template:
+    metadata:
+      labels:
+        app: peo-sqlserver
+    spec:
+      containers:
+        - name: sqlserver
+          image: mcr.microsoft.com/mssql/server:2022-latest
+          ports:
+            - containerPort: 1433
+          env:
+            - name: ACCEPT_EULA
+              value: "Y"
+            - name: MSSQL_PID
+              value: "Developer"
+            - name: SA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: peo-secrets
+                  key: SA_PASSWORD
+          volumeMounts:
+            - name: sqlserver-data
+              mountPath: /var/opt/mssql
+      volumes:
+        - name: sqlserver-data
+          emptyDir: {}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peo-identity-webapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: peo-identity-webapi
+  template:
+    metadata:
+      labels:
+        app: peo-identity-webapi
+    spec:
+      containers:
+        - name: peo-identity-webapi
+          image: peo/identity-webapi:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_URLS
+              valueFrom:
+                configMapKeyRef:
+                  name: peo-config
+                  key: ASPNETCORE_URLS
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: peo-config
+                  key: ASPNETCORE_ENVIRONMENT
+            - name: Jwt__Key
+              valueFrom:
+                secretKeyRef:
+                  name: peo-secrets
+                  key: JWT_KEY
+            - name: ConnectionStrings__SqlServerConnection
+              valueFrom:
+                secretKeyRef:
+                  name: peo-secrets
+                  key: IDENTITY_SQL_CONN
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peo-gestao-conteudo-webapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: peo-gestao-conteudo-webapi
+  template:
+    metadata:
+      labels:
+        app: peo-gestao-conteudo-webapi
+    spec:
+      containers:
+        - name: peo-gestao-conteudo-webapi
+          image: peo/gestao-conteudo-webapi:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_URLS
+              valueFrom:
+                configMapKeyRef:
+                  name: peo-config
+                  key: ASPNETCORE_URLS
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: peo-config
+                  key: ASPNETCORE_ENVIRONMENT
+            - name: Jwt__Key
+              valueFrom:
+                secretKeyRef:
+                  name: peo-secrets
+                  key: JWT_KEY
+            - name: ConnectionStrings__SqlServerConnection
+              valueFrom:
+                secretKeyRef:
+                  name: peo-secrets
+                  key: GESTAO_CONTEUDO_SQL_CONN
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peo-gestao-alunos-webapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: peo-gestao-alunos-webapi
+  template:
+    metadata:
+      labels:
+        app: peo-gestao-alunos-webapi
+    spec:
+      containers:
+        - name: peo-gestao-alunos-webapi
+          image: peo/gestao-alunos-webapi:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_URLS
+              valueFrom:
+                configMapKeyRef:
+                  name: peo-config
+                  key: ASPNETCORE_URLS
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: peo-config
+                  key: ASPNETCORE_ENVIRONMENT
+            - name: Jwt__Key
+              valueFrom:
+                secretKeyRef:
+                  name: peo-secrets
+                  key: JWT_KEY
+            - name: ConnectionStrings__SqlServerConnection
+              valueFrom:
+                secretKeyRef:
+                  name: peo-secrets
+                  key: GESTAO_ALUNOS_SQL_CONN
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peo-faturamento-webapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: peo-faturamento-webapi
+  template:
+    metadata:
+      labels:
+        app: peo-faturamento-webapi
+    spec:
+      containers:
+        - name: peo-faturamento-webapi
+          image: peo/faturamento-webapi:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_URLS
+              valueFrom:
+                configMapKeyRef:
+                  name: peo-config
+                  key: ASPNETCORE_URLS
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: peo-config
+                  key: ASPNETCORE_ENVIRONMENT
+            - name: Jwt__Key
+              valueFrom:
+                secretKeyRef:
+                  name: peo-secrets
+                  key: JWT_KEY
+            - name: ConnectionStrings__SqlServerConnection
+              valueFrom:
+                secretKeyRef:
+                  name: peo-secrets
+                  key: FATURAMENTO_SQL_CONN
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peo-web-bff
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: peo-web-bff
+  template:
+    metadata:
+      labels:
+        app: peo-web-bff
+    spec:
+      containers:
+        - name: peo-web-bff
+          image: peo/web-bff:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_URLS
+              valueFrom:
+                configMapKeyRef:
+                  name: peo-config
+                  key: ASPNETCORE_URLS
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: peo-config
+                  key: ASPNETCORE_ENVIRONMENT
+            - name: Jwt__Key
+              valueFrom:
+                secretKeyRef:
+                  name: peo-secrets
+                  key: JWT_KEY
+            - name: Endpoints__Identity
+              valueFrom:
+                configMapKeyRef:
+                  name: peo-config
+                  key: Endpoints__Identity
+            - name: Endpoints__GestaoConteudo
+              valueFrom:
+                configMapKeyRef:
+                  name: peo-config
+                  key: Endpoints__GestaoConteudo
+            - name: Endpoints__GestaoAlunos
+              valueFrom:
+                configMapKeyRef:
+                  name: peo-config
+                  key: Endpoints__GestaoAlunos
+            - name: Endpoints__Faturamento
+              valueFrom:
+                configMapKeyRef:
+                  name: peo-config
+                  key: Endpoints__Faturamento
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: peo-web-spa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: peo-web-spa
+  template:
+    metadata:
+      labels:
+        app: peo-web-spa
+    spec:
+      containers:
+        - name: peo-web-spa
+          image: peo/web-spa:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
