@@ -1,0 +1,98 @@
+﻿apiVersion: v1
+kind: Service
+metadata:
+  name: peo-sqlserver
+spec:
+  selector:
+    app: peo-sqlserver
+  ports:
+    - name: mssql
+      port: 1433
+      targetPort: 1433
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: peo-identity-webapi
+spec:
+  selector:
+    app: peo-identity-webapi
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: peo-gestao-conteudo-webapi
+spec:
+  selector:
+    app: peo-gestao-conteudo-webapi
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: peo-gestao-alunos-webapi
+spec:
+  selector:
+    app: peo-gestao-alunos-webapi
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: peo-faturamento-webapi
+spec:
+  selector:
+    app: peo-faturamento-webapi
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: peo-web-bff
+spec:
+  selector:
+    app: peo-web-bff
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      nodePort: 31276
+  type: NodePort
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: peo-web-spa
+spec:
+  selector:
+    app: peo-web-spa
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+      nodePort: 31031
+  type: NodePort
